@@ -67,11 +67,12 @@ local function read_imports()
         elseif islast or
             (not isblank(line) and not line:match("^library") and
                 not line:match("^//")) then
+
             if startline ~= nil then
-                if linenumber > 0 and isblank(lines[linenumber]) then
-                    endline = linenumber - 1
+                if linenumber > 0 and isblank(lines[linenumber]) and not islast then
+                    endline = linenumber - 2
                 else
-                    endline = linenumber
+                    endline = linenumber - 1
                 end
             end
             break
@@ -136,8 +137,8 @@ function sort_dart_imports()
     local imports, startline, endline = read_imports()
     if imports == nil or #imports == 0 then return end
     local sorted_imports = get_sorted_imports(imports)
-    if sorted_imports[#sorted_imports] == "" then
-        sorted_imports[#sorted_imports] = nil
+    if sorted_imports[#sorted_imports - 1] == "" then
+        sorted_imports[#sorted_imports - 1] = nil
     end
 
     -- replace old imports with organized ones
