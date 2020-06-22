@@ -69,9 +69,9 @@ local function read_imports()
                 not line:match("^//")) then
             if startline ~= nil then
                 if linenumber > 0 and isblank(lines[linenumber]) then
-                    endline = linenumber - 2
-                else
                     endline = linenumber - 1
+                else
+                    endline = linenumber
                 end
             end
             break
@@ -136,6 +136,9 @@ function sort_dart_imports()
     local imports, startline, endline = read_imports()
     if imports == nil or #imports == 0 then return end
     local sorted_imports = get_sorted_imports(imports)
+    if sorted_imports[#sorted_imports] == "" then
+        sorted_imports[#sorted_imports] = nil
+    end
 
     -- replace old imports with organized ones
     vim.api.nvim_buf_set_lines(0, startline - 1, endline, false, sorted_imports)
