@@ -31,7 +31,13 @@ Plug 'f-person/nvim-sort-dart-imports'
 
 #### Automatically sort Dart imports on save
 ```vim
-autocmd FileType dart au BufWrite * :DartSortImports
+function SortDartImports()
+	if &filetype == 'dart'
+		:DartSortImports
+	endif
+endfunction
+
+autocmd FileType dart au BufWrite * call SortDartImports()
 ```
 
 ## Demo
