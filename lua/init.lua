@@ -82,8 +82,8 @@ local function read_imports()
     return imports, startline, endline
 end
 
--- returns a table containing sorted imports
-local function get_sorted_imports(values)
+-- returns 2 tables: raw imports, sorted imports
+local function get_imports(values)
     if not values or #values == 0 then return '' end
 
     local dart_imports = {}
@@ -128,7 +128,7 @@ local function get_sorted_imports(values)
     add_imports(exports)
     add_imports(part_statements)
 
-    return imports
+    return values, imports
 end
 
 function sort_dart_imports()
@@ -136,11 +136,16 @@ function sort_dart_imports()
 
     local imports, startline, endline = read_imports()
     if imports == nil or #imports == 0 then return end
-    local sorted_imports = get_sorted_imports(imports)
+    local raw_imports, sorted_imports = get_imports(imports)
     if sorted_imports[#sorted_imports - 1] == "" then
         sorted_imports[#sorted_imports - 1] = nil
     end
 
-    -- replace old imports with organized ones
-    vim.api.nvim_buf_set_lines(0, startline - 1, endline, false, sorted_imports)
+    -- check whether or not imports are already sorted
+    if table.concat(raw_imports) ~= table.concat(sorted_imports) then
+        -- replace old imports with organized ones 
+        vim.api.nvim_buf_set_lines(0, startline - 1, endline, false,
+                                   sorted_imports)
+    end
+
 end
