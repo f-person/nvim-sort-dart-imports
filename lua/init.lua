@@ -45,7 +45,7 @@ local function find_project_name()
     end
 end
 
--- returns imports, startline, endline
+-- returns imports: table, startline: int, endline: int
 local function read_imports()
     local lines = vim.api.nvim_buf_get_lines(0, 0, -1, false)
     local startline
@@ -54,7 +54,7 @@ local function read_imports()
     local imports = {}
     for linenumber, line in ipairs(lines) do
         line = line:gsub("^%s+", "")
-        islast = linenumber == #lines
+        local islast = linenumber == #lines
 
         if line:match("^import") or line:match("^export") or line:match("^part") then
             table.insert(imports, line)
@@ -82,7 +82,7 @@ local function read_imports()
     return imports, startline, endline
 end
 
--- returns 2 tables: raw imports, sorted imports
+-- returns sorted_imports: table
 local function get_imports(values)
     if not values or #values == 0 then return '' end
 
@@ -128,7 +128,17 @@ local function get_imports(values)
     add_imports(exports)
     add_imports(part_statements)
 
-    return values, imports
+    return imports
+end
+
+local function check_tables_equal(first_table, second_table)
+    if #first_table ~= #second_table then return false end
+
+    for index, value in ipairs(first_table) do
+        if value ~= second_table[index] then return false end
+    end
+
+    return true
 end
 
 function sort_dart_imports()
@@ -136,16 +146,17 @@ function sort_dart_imports()
 
     local imports, startline, endline = read_imports()
     if imports == nil or #imports == 0 then return end
-    local raw_imports, sorted_imports = get_imports(imports)
+    local sorted_imports = get_imports(imports)
     if sorted_imports[#sorted_imports - 1] == "" then
         sorted_imports[#sorted_imports - 1] = nil
     end
 
     -- check whether or not imports are already sorted
-    if table.concat(raw_imports) ~= table.concat(sorted_imports) then
-        -- replace old imports with organized ones 
+    local raw_imports = vim.api.nvim_buf_get_lines(0, startline - 1, endline,
+                                                   false)
+    if check_tables_equal(raw_imports, sorted_imports) == false then
+        -- replace old imports with organized ones
         vim.api.nvim_buf_set_lines(0, startline - 1, endline, false,
                                    sorted_imports)
     end
-
 end
