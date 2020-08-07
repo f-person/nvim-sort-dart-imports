@@ -64,10 +64,7 @@ local function read_imports()
                 endline = linenumber
                 break
             end
-        elseif islast or
-            (not isblank(line) and not line:match("^library") and
-                not line:match("^//")) then
-
+        elseif islast or (not isblank(line) and not line:match("^library")) then
             if startline ~= nil then
                 if linenumber > 0 and isblank(lines[linenumber]) and not islast then
                     endline = linenumber - 2
