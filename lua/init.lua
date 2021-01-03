@@ -40,6 +40,7 @@ local function find_project_name()
         if line:match("^name") then
             project_name = line:gsub("name:", "") -- remove key
             project_name = project_name:gsub("%s+", "") -- trim
+            project_name = project_name:gsub('"', '') -- ignore quotes
             break
         end
     end
